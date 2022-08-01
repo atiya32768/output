@@ -63,3 +63,47 @@ with open(file_path, "w") as text_file:
 
             
 
+#get output from the terminal- LQ terminal is like a file, where the output is always changing
+#use the file path
+#store output - maybe store it in a list
+#strip-to only have the numbers
+#now that we've stored all of the numbers in a list
+#we need to seperate the values out-so every 4 numbers, we should add a new line
+#the ouput format is 4 numbers
+
+#keep a log of output in a file-json file?
+#then save in macros file on ciruitpy drive
+#output on macropad screen
+#add a number to the list, then add a new line
+#then seperate
+
+
+#We have the list of outputs
+#We need a way to assign all of the inputs from the command line into a list
+#then append the two values together in a list
+#print to screen
+
+#We need to find a way to refer to the enter button
+
+
+
+#Need to find a way to store all of the commands pressed in a list 
+#we store the value in the list, if they choose a command that isn't N/A and press enter
+#the order is to press a command, then enter
+
+#we then compare the positions of this list and my_lines list
+
+#we have alot of options
+#we have some if statements
+#we have an if statement where if key_event and key_event is pressed...
+#then we store those commands in a list
+#somehow find a way to store all of the possible options into a list
+#then compare this list to my_lines[]
+
+
+#we compare the position and add the elements in their relative positions into a third array
+#we concatentate
+
+#the position of elements in their separate arrays need to be compared
+
+#write the elements to the file after the comparison
