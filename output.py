@@ -1,6 +1,5 @@
-import os
-import subprocess
-import contextlib
+
+import contextlib  
 import numpy as np
 from adafruit_macropad import MacroPad
 macropad = MacroPad()
