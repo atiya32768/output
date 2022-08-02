@@ -1,7 +1,7 @@
 import contextlib  
 import numpy as np
 from adafruit_macropad import MacroPad
-from adafruit_hid.keycode import Keycode
+# from adafruit_hid.keycode import Keycode
 import logging
 macropad = MacroPad()
 # we need the number of arrays we want to split it in
