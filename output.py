@@ -53,12 +53,11 @@ while True:
     # displays all of the commands and outputs stored in the list onto the macropad screen
     text_lines= macropad.display_text(title="Commands & Output")
     if key_event.key_number==3 and key_event.pressed and macropad.encoder_switch==True:
-        text_lines[1].text=macropad.display_text(tuple_no_space)
-        text_lines.show()
+        for i in range(len(tuple_no_space)):
+            text_lines[i].text=macropad.display_text(tuple_no_space[i])
+            text_lines.show()
 
-
-
-
+ #for loop to iterate through items in the list and print line by line
 
 
                     
