@@ -14,9 +14,10 @@ number=json.loads(line)
 text_lines=macropad.display_text(title="Test")
 while True:
     key_event = macropad.keys.events.get()
-    if key_event.key_number==3 and macropad.encoder % 5 ==0:
-            for i in range(len(number)):
-                text_lines[i].text=number[i]
-                text_lines.show()
+    if key_event and key_event.pressed:
+        continue
+    if  key_event.key_number==3 and key_event.pressed and macropad.encoder_switch==True:
+        text_lines[1].text=macropad.display_text(number)
+        text_lines.show()
 
 
