@@ -102,7 +102,11 @@ last_encoder_switch = macropad.encoder_switch_debounced.pressed
 app_index = 0
 apps[app_index].switch()
 
-
+list=[]
+myfile=open('test.txt', 'r')
+for word in myfile:
+    list.append(word)
+text_lines=macropad.display_text(title="Test")
 # MAIN LOOP ----------------------------
 
 while True:
@@ -134,6 +138,12 @@ while True:
     # If code reaches here, a key or the encoder button WAS pressed/released
     # and there IS a corresponding macro available for it...other situations
     # are avoided by 'continue' statements above which resume the loop.
+
+    key_event = macropad.keys.events.get()
+    key_event and key_event.pressed
+    if  key_event.key_number==3 and key_event.pressed and macropad.encoder_switch==True:
+        text_lines[1].text=macropad.display_text(list)
+        text_lines.show()
 
     sequence = apps[app_index].macros[key_number][2]
     if pressed:
