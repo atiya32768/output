@@ -8,7 +8,12 @@
 #import usb
 #import usb.util
 
-import serial
+#try to send signal to the macropad
+import serial 
 import keyboard
 
-ser=serial=Serial(port=)
+ser=serial.Serial(port=     , baudrate=     , bytesize= , timeout= 2, stopbits=serial.STOPBITS_ONE)
+
+s=ser.read(100)
+
+
