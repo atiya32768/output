@@ -1,33 +1,33 @@
-#port
-#baudrate
-#bytesize
-#timeout
-#stopbits
 
-#import time
-#import usb
-#import usb.util
+# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
 
-#try to send signal to the macropad
-import keyboard
-import time
+import board
+import terminalio
+from adafruit_display_text import label
+from adafruit_macropad import MacroPad
+macropad=MacroPad()
 
-import serial
-
-ser=serial.Serial(port="COM4" , baudrate= "9600" , bytesize=8 , timeout= 2, stopbits=serial.STOPBITS_ONE)
-
-ser.isOpen()
-
-
+#need to print this out only if you press a specific button
+# text is the function used to display something onto the screen
+text = "Hello world"
+text_area = label.Label(terminalio.FONT, text=text)
+text_area.x = 10
+text_area.y = 10
+#board.DISPLAY.show(text_area)
 while True:
-    ser.write("This is the message\r\n".encode('Ascii'))
-    receive=ser.readline()
-    print(receive.decode('Ascii'))
-    time.sleep(1)
-    if keyboard.is_pressed('1'):
-        print("User need to Quit the application")
-        break
+    key_event=macropad.keys.events.get()
+    if key_event:
+        if key_event.pressed:
+            if macropad.encoder==0 or macropad.encoder%5==0:
+                if key_event.key_number==3:
+                    board.DISPLAY.show(text_area)
+            elif macropad.encoder==2 or macropad.encoder %5==2:
+                if key_event.key_number==3:
+                    board.DISPLAY.show(text_area)
+            else:
+                if macropad.encoder==2 or macropad.encodeer %5==4:
+                    if key_event.key_number==3:
+                        board.DISPLAY.show(text_area)
 
-# we need to get information from the PC to the macropad screen
-
-ser.close()
+                
