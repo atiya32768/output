@@ -2,6 +2,9 @@
 from adafruit_macropad import MacroPad
 import json
 import os
+from adafruit_display_text import label, bitmap_label
+from adafruit_bitmap_font import bitmap_font
+
 
 macropad = MacroPad()
 # relate the file path to the arrays
