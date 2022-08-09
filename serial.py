@@ -9,11 +9,23 @@
 #import usb.util
 
 #try to send signal to the macropad
-import serial 
 import keyboard
+import time
 
-ser=serial.Serial(port=     , baudrate=     , bytesize= , timeout= 2, stopbits=serial.STOPBITS_ONE)
+import serial
 
-s=ser.read(100)
+ser=serial.Serial(port="COM4" , baudrate= "9600" , bytesize=8 , timeout= 2, stopbits=serial.STOPBITS_ONE)
+
+ser.isOpen()
 
 
+while True:
+    ser.write("This is the message\r\n".encode('Ascii'))
+    receive=ser.readline()
+    print(receive.decode('Ascii'))
+    time.sleep(1)
+    if keyboard.is_pressed('1'):
+        print("User need to Quit the application")
+        break
+
+ser.close()
