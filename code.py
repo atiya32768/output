@@ -51,8 +51,8 @@ class Manager:
     result_on_screen=tuple(result_on_screen)
 
     with open("final_output.txt", 'w') as final_file:
-        sys.stdout=final_file
         print(result_on_screen)
+        sys.stdout=final_file
         final_file.close()
 class Output:
     #define some functions in relation to output.txt
@@ -146,39 +146,52 @@ if not apps and not outputs:
     macropad.display.refresh()
     while True:
         pass
-
+# outputs 
 last_position = None
 last_encoder_switch = macropad.encoder_switch_debounced.pressed
 index_app = 0
 apps[index_app].switch() #the OLED lights and label are assigned using switch
-
+total_list=apps+outputs
+total_list[index_app].switch()
 # MAIN LOOP ----------------------------
 
 while True:
-    # Read encoder position. If it's changed, switch apps.
-    position = macropad.encoder
-    if position != last_position:
-        index_app = position % len(apps) #the position of the key in the apps list is the remainder on dividing the number on the macropad encoder switch by the total number of elements in the apps list
-        apps[index_app].switch() 
+    # Read encoder position. If it's changed, switch apps and outputs interchangeably
+    position = macropad.encoder 
+    if position != last_position: # the number on the macropad encoder divided by the number of macrofiles results is 0, so we are making a correspondence between the macropad.encoder and the position of a macrofile in the folder
+        index_app = position % (len(total_list)) # the position of the key in the apps list is the remainder on dividing the number on the macropad encoder switch by the total number of elements in the apps list
+        if apps: # if we have the apps elements in the the total list, we perform the switch operation
+            total_list[index_app].switch() # only switches the contents of the apps_list
         last_position=position
+        
+    # switch what is to be the first element of the apps list
     # if the macropad encoder has changed, we switch the apps list, as different apps are assigned to different key commands 
     # Handle encoder button. If state has changed, and if there's a
     # corresponding macro, set up variables to act on this just like
     # the keypad keys, as if it were a 13th key/macro.
+
     macropad.encoder_switch_debounced.update()
     encoder_switch = macropad.encoder_switch_debounced.pressed
     if encoder_switch != last_encoder_switch:
-        last_encoder_switch = encoder_switch
-        if len(apps[index_app].macros) < 13:
+        last_encoder_switch = encoder_switch 
+        if len(apps[index_app].macros) < 13: #there are less than 13 macrobuttons stored in the apps list
             continue    # No 13th macro, just resume main loop
-        key_number = 12 # else process below as 13th macro
+        key_number = 12 # else process below as 13th macro 
         pressed = encoder_switch
         event = macropad.keys.events.get()
-        if not event or event.key_number >= len(apps[index_app].macros):
+        # edit this part
+        if event.key_number >= len(apps[index_app].macros): # if you don't press a key or if your macro file (code) contains an extra key (out of bounds),we ignore it - sorting out possible errors
         # No key events, or no corresponding macro, resume loop
             continue
-        key_number = event.key_number
-        pressed = event.pressed
+        key_number = event.key_number  # key number will be the equal to the key number chosen
+        pressed = event.pressed  # the event (specific key) is pressed
+        if not event:
+        
+            # then we have an output.txt file
+            # we don't have any keys pressed
+            # we just output the result to the screen
+
+
 
     # If code reaches here, a key or the encoder button WAS pressed/released
     # and there IS a corresponding macro available for it...other situations
@@ -195,12 +208,12 @@ while True:
         # List []: one or more Consumer Control codes (can also do float delay)
         # Dict {}: mouse buttons/motion (might extend in future)
         if key_number < 12: # No pixel for encoder button
-            macropad.pixels[key_number] = 0xFFFFFF 
-            macropad.pixels.show()
+            macropad.pixels[key_number] = 0xFFFFFF  # assigns a colour to each key on the macropad
+            macropad.pixels.show()      # displays the colour on the key
         for item in sequence:
-            if isinstance(item, int):
-                if item >= 0:
-                    macropad.keyboard.press(item)
+            if isinstance(item, int): 
+                if item >= 0:  
+                    macropad.keyboard.press(item)   
                 else:
                     macropad.keyboard.release(-item)
             elif isinstance(item, float):
@@ -252,6 +265,7 @@ while True:
             macropad.pixels[key_number] = apps[index_app].macros[key_number][0]
             macropad.pixels.show()
 
+    #output is stored in final file
 
 #come up with some seperate functionality
  #create a class to store the input of the keys-later
