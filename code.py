@@ -134,7 +134,15 @@ macropad.display.show(group)
 
 # Set up displayio for the txt file
 output_group=displayio.Group()
-text_label=label.Label(terminalio.FONT, text='', color= 0xFFFFFF, anchored_position=(macropad.display.width-1) * (x/2)
+output_group.append(label.Label(terminalio.FONT, text='', color=0xFFFFFF,
+                             anchored_position=((macropad.display.width - 5) * x / 5,
+                                                macropad.display.height - 1 - (3-y)*12 ),
+                             anchor_point=(x/2, 1.0)))     #label.Label is used to display something to the screen
+output_group.append(Rect(0, 0, macropad.display.width, 12, fill=0xFFFFFF)) # this is for the box at the top
+output_group.append(label.Label(terminalio.FONT, text='', color=0x000000,
+                         anchored_position=(macropad.display.width//10, -2),
+                         anchor_point=(0.0, 0.0))) # this is for the label at the top
+macropad.display.show(group)
 
 
     
