@@ -186,7 +186,7 @@ while True:
         key_number = event.key_number  # key number will be the equal to the key number chosen
         pressed = event.pressed  # the event (specific key) is pressed
         if not event:
-        
+            
             # then we have an output.txt file
             # we don't have any keys pressed
             # we just output the result to the screen
