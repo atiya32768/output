@@ -16,10 +16,12 @@ import os
 import time
 import sys
 import displayio
+import board
 import terminalio
 from adafruit_display_shapes.rect import Rect
 from adafruit_display_text import label
 from adafruit_macropad import MacroPad
+
 
 
 # CONFIGURABLES ------------------------
@@ -43,7 +45,6 @@ class Manager:
             print("Error reading the file")
 
         return list_of_values   
-
     input=read_line("input.txt")  
     output=read_line("output.txt")
     result_on_screen=list(zip(input, output))
@@ -54,6 +55,12 @@ class Manager:
         print(result_on_screen)
         sys.stdout=final_file
         final_file.close()
+
+    output_from_file=[]
+    with open("final_output.txt", "r") as final_file:
+        data=final_file.readlines()
+        output_from_file.append(data.strip())
+
 class Output:
     #define some functions in relation to output.txt
     #edit to make it clear it's a txt file
@@ -61,11 +68,19 @@ class Output:
     #the file contains commands and output as strings and numbers
     #everytime an instance of this class is created, this function is called
     def __init__(self):
-        self.name="final_output.txt"  #name of the txt file 
-
+        self.name="final output"  #name of the txt file 
+        
     def switch(self): # switching between the different files 
-        group[13].text=self.name
-        macropad.display.refresh()
+        group[13].text=self.name 
+        # define some for loop
+        #where we assign each line to text and pixel
+        # for each item in the output_from_file list
+        for each_item in Manager.output_from_file:
+            macropad.pixels[each_item]=Manager.output_from_file[each_item]
+            
+
+            # we assign a pixel to each item in the txt file
+        macropad.display.refresh() 
         macropad.pixels.show()
 
 class App:
@@ -76,19 +91,19 @@ class App:
     def switch(self):
         """ Activate application settings; update OLED labels and LED
             colors. """
-        group[13].text = self.name   # Application name
+        group[13].text = self.name   # Application name   # display the the application name to the screen
         for i in range(12):
-            if i < len(self.macros): # Key in use, set label + LED color
-                macropad.pixels[i] = self.macros[i][0]
-                group[i].text = self.macros[i][1]
+            if i < len(self.macros): # Key in use, set label + LED color - if i is less than the number of elements in the macrofile
+                macropad.pixels[i] = self.macros[i][0]  # then we assign the macropad pixels on the screen to the macro buttons defined in the macrofile
+                group[i].text = self.macros[i][1]   # we then assign the group text to the names of the macros in the file
             else:  # Key not in use, no label or LED
-                macropad.pixels[i] = 0
+                macropad.pixels[i] = 0 
                 group[i].text = ''
                 
         macropad.keyboard.release_all()
         macropad.consumer_control.release()
         macropad.mouse.release_all()
-        #macropad.stop_tone()
+        macropad.stop_tone()
         macropad.pixels.show()
         macropad.display.refresh()
 
@@ -99,22 +114,32 @@ macropad.display.auto_refresh = False
 macropad.pixels.auto_write = False
 
 # Set up displayio group with all the labels
-group = displayio.Group()
-for key_index in range(12):
-    x = key_index % 3
-    y = key_index // 3
+# we have three group statements
+group = displayio.Group() 
+for key_index in range(12): # for each key on the macropad
+    x = key_index % 3   # we assign x to be the remainder from dividing the key_index by 3, so 4
+    y = key_index // 3 # y is 4
     group.append(label.Label(terminalio.FONT, text='', color=0xFFFFFF,
                              anchored_position=((macropad.display.width - 1) * x / 2,
                                                 macropad.display.height - 1 -
-                                                (3 - y) * 12),
-                             anchor_point=(x / 2, 1.0)))     #label.Label is used to display something to the screen
+                                                (3 - y) * 12),  # what does anchored position mean?
+                             anchor_point=(x / 2, 1.0)))     # label.Label is used to display something to the screen
 group.append(Rect(0, 0, macropad.display.width, 12, fill=0xFFFFFF))
 group.append(label.Label(terminalio.FONT, text='', color=0x000000,
                          anchored_position=(macropad.display.width//2, -2),
                          anchor_point=(0.5, 0.0)))
 macropad.display.show(group)
+# set up display screen for the output from the macropad 
+# initialize it here and call later on in if statement
+
+# Set up displayio for the txt file
+output_group=displayio.Group()
+text_label=label.Label(terminalio.FONT, text='', color= 0xFFFFFF, anchored_position=(macropad.display.width-1) * (x/2)
+
+
+    
 # Load all the macro key setups from .py files in MACRO_FOLDER
-apps = [] #list of all the macrofiles
+apps = [] # list of all the macrofiles
 outputs= [] # we can have a list with one item in it
 files = os.listdir(MACRO_FOLDER)
 files.sort()
@@ -150,7 +175,7 @@ if not apps and not outputs:
 last_position = None
 last_encoder_switch = macropad.encoder_switch_debounced.pressed
 index_app = 0
-apps[index_app].switch() #the OLED lights and label are assigned using switch
+apps[index_app].switch() # the OLED lights and label are assigned using switch
 total_list=apps+outputs
 total_list[index_app].switch()
 # MAIN LOOP ----------------------------
@@ -174,7 +199,7 @@ while True:
     encoder_switch = macropad.encoder_switch_debounced.pressed
     if encoder_switch != last_encoder_switch:
         last_encoder_switch = encoder_switch 
-        if len(apps[index_app].macros) < 13: #there are less than 13 macrobuttons stored in the apps list
+        if len(apps[index_app].macros) < 13: # there are less than 13 macrobuttons stored in the apps list
             continue    # No 13th macro, just resume main loop
         key_number = 12 # else process below as 13th macro 
         pressed = encoder_switch
@@ -185,8 +210,12 @@ while True:
             continue
         key_number = event.key_number  # key number will be the equal to the key number chosen
         pressed = event.pressed  # the event (specific key) is pressed
-        if not event:
-            
+        # need an if statement to display output onto the screen
+      # if not event:
+        # we display the outputs.txt file to the macropad screen
+
+#upto this point the macrofiles are displayed
+# so I need to edit the displayio a
             # then we have an output.txt file
             # we don't have any keys pressed
             # we just output the result to the screen
