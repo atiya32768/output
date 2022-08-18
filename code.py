@@ -73,18 +73,21 @@ class Output(Manager):
     # for every object the function is called
     # __init__ is an initializer
 
-    def __init__(self, key, value, output_dictionary):
-        self.output_dictionary=output_dictionary[key]
-        self.output_dictionary=output_dictionary[value]
+    def __init__(self, key,value ,output_dictionary):
+        self.output_dictionary_keys=output_dictionary[key]
+        self.output_dictionary_values=output_dictionary[value]
 
     def switch(self): # switching between the different files 
         # define some for loop
         # where we assign each line to text and pixel
         # for each item in the output_from_file list
         for x in self.output_dictionary.keys():
-            if i 
-            
+            macropad.pixels[x]=self.output_dictionary_keys[x]
+            output_group[x].text=self.output_dictionary_keys[x]           
 
+        for y in self.output_dictionary.values():
+            macropad.pixels[y]=self.output_dictionary_keys[y]
+            
             # we assign a pixel to each item in the txt file
         macropad.display.refresh() 
         macropad.pixels.show()
