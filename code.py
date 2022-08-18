@@ -1,15 +1,4 @@
-# SPDX-FileCopyrightText: 2021 Phillip Burgess for Adafruit Industries
-#
-# SPDX-License-Identifier: MIT
 
-"""
-A macro/hotkey program for Adafruit MACROPAD. Macro setups are stored in the
-/macros folder (configurable below), load up just the ones you're likely to
-use. Plug into computer's USB port, use dial to select an application macro
-set, press MACROPAD keys to send key sequences and other USB protocols.
-"""
-
-# pylint: disable=import-error, unused-import, too-few-public-methods
 
 from curses import KEY_ENTER
 import os
@@ -86,7 +75,8 @@ class Output(Manager):
             output_group[x].text=self.output_dictionary_keys[x]           
 
         for y in self.output_dictionary.values():
-            macropad.pixels[y]=self.output_dictionary_keys[y]
+            macropad.pixels[y]=self.output_dictionary_values[y]
+            output_group[y].text=self.output_dictionary_keys[y]
             
             # we assign a pixel to each item in the txt file
         macropad.display.refresh() 
@@ -150,10 +140,11 @@ output_group.append(label.Label(terminalio.FONT, text='', color=0xFFFFFF,
 output_group.append(Rect(0, 0, macropad.display.width, 12, fill=0xFFFFFF)) # this is for the box at the top
 output_group.append(label.Label(terminalio.FONT, text='', color=0x000000,
                          anchored_position=(macropad.display.width//10, -2),
-                         anchor_point=(0.0, 0.0))) # this is for the label at the top
+                         anchor_point=(0.5, 0.0))) # this is for the label at the top
 macropad.display.show(group)
 
 input_group=displayio.Group()
+#input_group=append(label.Label(terminalio.FONT, text='', color=0xFFFFFF, anchored_position=((macropad.display.width-1)* x/2,
 
     
 # Load all the macro key setups from .py files in MACRO_FOLDER
