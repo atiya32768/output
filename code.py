@@ -13,15 +13,14 @@ set, press MACROPAD keys to send key sequences and other USB protocols.
 
 from curses import KEY_ENTER
 import os
+from re import M
 import time
 import sys
 import displayio
-import board
 import terminalio
 from adafruit_display_shapes.rect import Rect
 from adafruit_display_text import label
 from adafruit_macropad import MacroPad
-
 
 
 # CONFIGURABLES ------------------------
@@ -32,6 +31,10 @@ MACRO_FOLDER = '/macros'
 # CLASSES AND FUNCTIONS ----------------
 # this class seems random 
 class Manager:
+# we need a way to convert the information in the txt file to a dictionary 
+
+# we will then use that to define the def __init__switch
+# we need a def_init function 
         # Initialization ------
     def read_line(filename):
         try:
@@ -47,36 +50,39 @@ class Manager:
         return list_of_values   
     input=read_line("input.txt")  
     output=read_line("output.txt")
-    result_on_screen=list(zip(input, output))
-    result_on_screen='\n'.join(map(str,result_on_screen))
-    result_on_screen=tuple(result_on_screen)
+
+    result_on_screen=zip(input, output)
 
     with open("final_output.txt", 'w') as final_file:
-        print(result_on_screen)
-        sys.stdout=final_file
-        final_file.close()
+        for each_item in result_on_screen:
+            final_file.write(str(each_item[0])+ " "+ each_item[1] + "\n")
 
-    output_from_file=[]
+    #now store output in a dictionary 
+    output_dictionary={}
     with open("final_output.txt", "r") as final_file:
-        data=final_file.readlines()
-        output_from_file.append(data.strip())
+        for each_line in final_file:
+            (key, value)=each_line.split()
 
-class Output:
-    #define some functions in relation to output.txt
-    #edit to make it clear it's a txt file
-    # have a function that 
-    #the file contains commands and output as strings and numbers
-    #everytime an instance of this class is created, this function is called
-    def __init__(self):
-        self.name="final output"  #name of the txt file 
-        
+            output_dictionary[str(key)]=value
+
+
+class Output(Manager):
+    # work on this class
+    # initialises or creates space in memory
+    # like a constructor
+    # for every object the function is called
+    # __init__ is an initializer
+
+    def __init__(self, key, value, output_dictionary):
+        self.output_dictionary=output_dictionary[key]
+        self.output_dictionary=output_dictionary[value]
+
     def switch(self): # switching between the different files 
-        group[13].text=self.name 
         # define some for loop
-        #where we assign each line to text and pixel
+        # where we assign each line to text and pixel
         # for each item in the output_from_file list
-        for each_item in Manager.output_from_file:
-            macropad.pixels[each_item]=Manager.output_from_file[each_item]
+        for x in self.output_dictionary.keys():
+            if i 
             
 
             # we assign a pixel to each item in the txt file
@@ -124,10 +130,10 @@ for key_index in range(12): # for each key on the macropad
                                                 macropad.display.height - 1 -
                                                 (3 - y) * 12),  # what does anchored position mean?
                              anchor_point=(x / 2, 1.0)))     # label.Label is used to display something to the screen
-group.append(Rect(0, 0, macropad.display.width, 12, fill=0xFFFFFF))
+group.append(Rect(0, 0, macropad.display.width, 12, fill=0xFFFFFF))  # label where the title is stored in rectangle at the top of the screen
 group.append(label.Label(terminalio.FONT, text='', color=0x000000,
                          anchored_position=(macropad.display.width//2, -2),
-                         anchor_point=(0.5, 0.0)))
+                         anchor_point=(0.5, 0.0)))   # used to adjust the title in the rectangle at the top of the screen
 macropad.display.show(group)
 # set up display screen for the output from the macropad 
 # initialize it here and call later on in if statement
@@ -144,6 +150,7 @@ output_group.append(label.Label(terminalio.FONT, text='', color=0x000000,
                          anchor_point=(0.0, 0.0))) # this is for the label at the top
 macropad.display.show(group)
 
+input_group=displayio.Group()
 
     
 # Load all the macro key setups from .py files in MACRO_FOLDER
@@ -156,6 +163,9 @@ for filename in files:
         try:
             module = __import__(MACRO_FOLDER + '/' + filename[:-3])
             apps.append(App(module.app)) # we append the values to the keys 
+            # the init function is called here
+            # app is the dictionary in the macros
+            # we are calling the app and macro names.
             # we  append all of the key values from each file in the macrofile to the apps list
             # try to append values to the screen without assigning values to the screen
         except (SyntaxError, ImportError, AttributeError, KeyError, NameError,
@@ -167,7 +177,7 @@ for filename in files:
     if filename.endswith('.txt') and filename.startswith('final_output'): 
         try:
             output_append = __import__(MACRO_FOLDER + '/' + filename[:-3])
-            outputs.append(Manager(output_append.final_file)) #append all of the values in this file to one position in the outputs list
+            outputs.append(Output(output_append.final_file)) #append all of the values in this file to one position in the outputs list
         except (SyntaxError, ImportError, AttributeError, KeyError, NameError,
                 IndexError, TypeError) as err:
             print("ERROR in", filename)
