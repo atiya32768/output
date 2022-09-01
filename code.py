@@ -61,22 +61,21 @@ class Output(Manager):
     # like a constructor
     # for every object the function is called
     # __init__ is an initializer
-
     def __init__(self, key,value ,output_dictionary):
         self.output_dictionary_keys=output_dictionary[key]
         self.output_dictionary_values=output_dictionary[value]
 
-    def switch(self): # switching between the different files 
+    def mapping(self): # switching between the different files 
         # define some for loop
         # where we assign each line to text and pixel
         # for each item in the output_from_file list
         for x in self.output_dictionary.keys():
             macropad.pixels[x]=self.output_dictionary_keys[x]
             output_group[x].text=self.output_dictionary_keys[x]           
-
+            # need to
         for y in self.output_dictionary.values():
             macropad.pixels[y]=self.output_dictionary_values[y]
-            output_group[y].text=self.output_dictionary_keys[y]
+            input_group[y].text=self.output_dictionary_keys[y]
             
             # we assign a pixel to each item in the txt file
         macropad.display.refresh() 
@@ -87,7 +86,7 @@ class App:
         self.name = appdata['name']
         self.macros = appdata['macros']
 
-    def switch(self):
+    def switch(self):  # we are switching the name of the app and app macros
         """ Activate application settings; update OLED labels and LED
             colors. """
         group[13].text = self.name   # Application name   # display the the application name to the screen
@@ -114,6 +113,7 @@ macropad.pixels.auto_write = False
 
 # Set up displayio group with all the labels
 # we have three group statements
+# displays the keys on the macropad in a specific way
 group = displayio.Group() 
 for key_index in range(12): # for each key on the macropad
     x = key_index % 3   # we assign x to be the remainder from dividing the key_index by 3, so 4
@@ -132,24 +132,43 @@ macropad.display.show(group)
 # initialize it here and call later on in if statement
 
 # Set up displayio for the txt file
+#to print out on the screen 4 by 1
 output_group=displayio.Group()
-output_group.append(label.Label(terminalio.FONT, text='', color=0xFFFFFF,
+for key_index in range(4):
+    x=key_index % 1
+    y=key_index // 3
+    output_group.append(label.Label(terminalio.FONT, text='', color=0xFFFFFF,
                              anchored_position=((macropad.display.width - 5) * x / 5,
                                                 macropad.display.height - 1 - (3-y)*12 ),
                              anchor_point=(x/2, 1.0)))     #label.Label is used to display something to the screen
-output_group.append(Rect(0, 0, macropad.display.width, 12, fill=0xFFFFFF)) # this is for the box at the top
+output_group.append(Rect(0, 0, macropad.display.width, 8, fill=0xFFFFFF)) # this is for the box at the top
 output_group.append(label.Label(terminalio.FONT, text='', color=0x000000,
                          anchored_position=(macropad.display.width//10, -2),
                          anchor_point=(0.5, 0.0))) # this is for the label at the top
-macropad.display.show(group)
+macropad.display.show(output_group)
 
+#display the outputs on the left of the screen and the middle of the macroapd screen
 input_group=displayio.Group()
-#input_group=append(label.Label(terminalio.FONT, text='', color=0xFFFFFF, anchored_position=((macropad.display.width-1)* x/2,
+for key_index in range(4):
+    x=key_index %2
+    y= key_index //3
+    input_group.append(label.Label(terminalio.FONT, text='', color=0xFFFFFF,
+                             anchored_position=((macropad.display.width - 5) * x / 5,
+                                                macropad.display.height - 1 - (3-y)*12 ),
+                             anchor_point=(x/2, 1.0)))     #label.Label is used to display something to the screen
+input_group.append(Rect(0, 0, macropad.display.width, 8, fill=0xFFFFFF)) # this is for the box at the top
+input_group.append(label.Label(terminalio.FONT, text='', color=0x000000,
+                         anchored_position=(macropad.display.width//10, -2),
+                         anchor_point=(0.5, 0.0))) # this is for the label at the top
+macropad.display.show(input_group)
+    
+
+# input_group=append(label.Label(terminalio.FONT, text='', color=0xFFFFFF, anchored_position=((macropad.display.width-1)* x/2,
 
     
 # Load all the macro key setups from .py files in MACRO_FOLDER
 apps = [] # list of all the macrofiles
-outputs= [] # we can have a list with one item in it
+outputs= [] # we can have a list with one item in it - a list containing one item 
 files = os.listdir(MACRO_FOLDER)
 files.sort()
 for filename in files:
@@ -157,11 +176,10 @@ for filename in files:
         try:
             module = __import__(MACRO_FOLDER + '/' + filename[:-3])
             apps.append(App(module.app)) # we append the values to the keys 
+            # we are appending each app dictionary to the apps list
             # the init function is called here
             # app is the dictionary in the macros
             # we are calling the app and macro names.
-            # we  append all of the key values from each file in the macrofile to the apps list
-            # try to append values to the screen without assigning values to the screen
         except (SyntaxError, ImportError, AttributeError, KeyError, NameError,
                 IndexError, TypeError) as err:
             print("ERROR in", filename)
@@ -170,8 +188,11 @@ for filename in files:
     # we don't need to append, we just need to display a screen on the macropad for it
     if filename.endswith('.txt') and filename.startswith('final_output'): 
         try:
+            # we are getting the position of the file in the folder
             output_append = __import__(MACRO_FOLDER + '/' + filename[:-3])
-            outputs.append(Output(output_append.final_file)) #append all of the values in this file to one position in the outputs list
+            # what are we looking to append from that file
+            outputs.append(Output(output_append.output_dictionary)) #append all of the values in this file to one position in the outputs list
+            #we have appended the output_dictionary to the outputs list
         except (SyntaxError, ImportError, AttributeError, KeyError, NameError,
                 IndexError, TypeError) as err:
             print("ERROR in", filename)
@@ -187,25 +208,32 @@ if not apps and not outputs:
 last_position = None
 last_encoder_switch = macropad.encoder_switch_debounced.pressed
 index_app = 0
-apps[index_app].switch() # the OLED lights and label are assigned using switch
-total_list=apps+outputs
-total_list[index_app].switch()
-# MAIN LOOP ----------------------------
+apps[index_app].switch() # the OLED lights and label are assigned using switch 
+# we are outputting the pixels on the macropad screen using the apps list, where at each position an apps dictionary is stored
+index_output=0
+outputs[index_output].mapping()
 
+# a list that combines the values of two lists and switches between those different files
+# a program to switch between the different displays on the macropad screen with the apps and outputs
+# MAIN LOOP ----------------------------
+# an if statement of the different macropad numbers on switch
 while True:
-    # Read encoder position. If it's changed, switch apps and outputs interchangeably
+    # relate the position variable to the outputs list
+#     re-do the whole block of text under the while true statement
+# we have our apps list, outputs list
+# we need to apply seperate functions to them
+# we need to relate the position of the macropad encoder to the dictionaries assigned
+# to the lists
+# so...when the macropad enocder is moved, we assign a different dictionary,
+# this could be the different app dictionaries or the output dictionary
+
     position = macropad.encoder 
     if position != last_position: # the number on the macropad encoder divided by the number of macrofiles results is 0, so we are making a correspondence between the macropad.encoder and the position of a macrofile in the folder
-        index_app = position % (len(total_list)) # the position of the key in the apps list is the remainder on dividing the number on the macropad encoder switch by the total number of elements in the apps list
-        if apps: # if we have the apps elements in the the total list, we perform the switch operation
-            total_list[index_app].switch() # only switches the contents of the apps_list
-        last_position=position
-        
-    # switch what is to be the first element of the apps list
-    # if the macropad encoder has changed, we switch the apps list, as different apps are assigned to different key commands 
-    # Handle encoder button. If state has changed, and if there's a
-    # corresponding macro, set up variables to act on this just like
-    # the keypad keys, as if it were a 13th key/macro.
+        index_app = position % (len(apps)) # the position of the key in the apps list is the remainder on dividing the number on the macropad encoder switch by the total number of elements in the apps list
+        if apps or outputs: # if we have the apps elements in the the total list, we perform the switch operation
+            apps[index_app].switch() # only switches the contents of the apps_list
+            outputs[index_output].mapping()     
+            last_position=position
 
     macropad.encoder_switch_debounced.update()
     encoder_switch = macropad.encoder_switch_debounced.pressed
