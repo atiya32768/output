@@ -217,8 +217,7 @@ while True:
             temporary[index_temporary].switch() # only switches the contents of the apps_list
             temporary[index_temporary].mapping()     
             last_position = position
-
-
+            
 # included to continually check the state of the switch
     index_app=index_temporary
     macropad.encoder_switch_debounced.update()
