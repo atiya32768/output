@@ -12,12 +12,8 @@ from adafruit_macropad import MacroPad
 MACRO_FOLDER = '/macros'
 
 # CLASSES AND FUNCTIONS ----------------
-# this class seems random 
-#relate the files in the macrofolder to manager class
+
 class Manager:
-    # we will then use that to define the def __init__switch
-    # we need a def_init function 
-    # Initialization ------
     def read_line(filename):
         try:
             list_of_values = []
@@ -26,35 +22,28 @@ class Manager:
             for line in range(len(lines)):
                 list_of_values.append(lines[line].strip('\n'))
             file.close()
-        except: 
+        except:
             print("Error reading the file")
 
-        return list_of_values   
-    input = read_line("input.txt")  
-    output = read_line("output.txt")
+        return list_of_values
 
-    result_on_screen = zip(input, output)
+    input = read_line("macros/input.txt")  
+    output = read_line("macros/output.txt")
 
-    with open("final_output.txt", 'w') as final_file:
-        for each_item in result_on_screen:
-            final_file.write(str(each_item[0]) + " " + each_item[1] + "\n")
-
-    # now store output in a dictionary 
     output_dictionary = {}
-    with open("final_output.txt", "r") as final_file:
-        for each_line in final_file:
-            (key, value) = each_line.split()
 
-            output_dictionary[str(key)] = value
-
-
+    for each_line in input:
+        key_element=each_line.split('\n')[0]
+        for line_each in output:
+            value_element=line_each.split('\n')[0]
+            output_dictionary[key_element]=value_element
+            output.remove(value_element)
+            break
+          
+    # we can call the dictionary
+    # 
 class Output(Manager):
-    # work on this class
-    # initialises or creates space in memory
-    # like a constructor
-    # for every object the function is called
-    # __init__ is an initializer
-    # trying to display the output in a specific way
+   
     def __init__(self, key, value, output_dictionary):
         self.output_dictionary_keys = output_dictionary[key]
         self.output_dictionary_values = output_dictionary[value]
@@ -79,6 +68,11 @@ class App:
     def __init__(self, appdata):
         self.name = appdata['name']
         self.macros = appdata['macros']
+    # when they press a certain button
+    # we need a way to refer to the 
+    # have some string in the app, that we call, depending on which button is pressed
+    # this will be displayed on the screen
+    # until a certain button is pressed
 
     def switch(self):  # we are switching the name of the app and app macros
         """ Activate application settings; update OLED labels and LED
@@ -105,13 +99,11 @@ macropad = MacroPad()
 macropad.display.auto_refresh = False
 macropad.pixels.auto_write = False
 
-# Set up displayio group with all the labels
-# we have three group statements
-# displays the keys on the macropad in a specific way
+
 group = displayio.Group() 
-for key_index in range(12):  # for each key on the macropad
-    x = key_index % 3   # we assign x to be the remainder
-    y = key_index // 3  # y is 4
+for key_index in range(12):  
+    x = key_index % 3  
+    y = key_index // 3  
     group.append(label.Label(terminalio.FONT, text='', color=0xFFFFFF,
                              anchored_position=((macropad.display.width - 1) * x / 2,
                                                 macropad.display.height - 1 -
@@ -120,13 +112,10 @@ for key_index in range(12):  # for each key on the macropad
 group.append(Rect(0, 0, macropad.display.width, 12, fill=0xFFFFFF))  
 group.append(label.Label(terminalio.FONT, text='', color=0x000000,
                          anchored_position=(macropad.display.width//2, -2),
-                         anchor_point=(0.5, 0.0)))  # used 
+                         anchor_point=(0.5, 0.0)))  
 macropad.display.show(group)
-# set up display screen for the output from the macropad 
-# initialize it here and call later on in if statement
 
-# Set up displayio for the txt file
-#  to print out on the screen 4 by 1
+
 output_group = displayio.Group()
 for key_index in range(4):
     x = key_index % 1
@@ -159,13 +148,13 @@ macropad.display.show(input_group)
 
 # input_group=append(label.Label(terminalio.FONT, text='', color=0xFFFFFF, anchored_position=((macropad.display.width-1)* x/2,
 
-    
 # Load all the macro key setups from .py files in MACRO_FOLDER
 apps = []  # list of all the macrofiles
 outputs = []  # we can have a list with one item in it - a list containing one item 
 files = os.listdir(MACRO_FOLDER)
 # list of all the names in the directory 
 files.sort()
+
 for filename in files:
     if filename.endswith('.py') and not filename.startswith('._'):
         try:
@@ -176,79 +165,67 @@ for filename in files:
             print("ERROR in", filename)
             import traceback
             traceback.print_exception(err, err, err.__traceback__)
-    # we don't need to append, we just need to display a screen on the macropad for it
-    if filename.endswith('.txt') and filename.startswith('final_output'): 
-        try:
-            # we are getting the position of the file in the folder
-            output_append = __import__(MACRO_FOLDER + '/' + filename[:-3])
-            # what are we looking to append from that file
-            outputs.append(Output(output_append.output_dictionary)) # append all of the values in this file to one position in the outputs list
-            # we have appended the output_dictionary to the outputs list
-        except (SyntaxError, ImportError, AttributeError, KeyError, NameError,
-                IndexError, TypeError) as err:
-            print("ERROR in", filename)
-            import traceback
-            traceback.print_exception(err, err, err.__traceback__)
+
+try:
+    output_append = Output.output_dictionary
+    outputs.append(output_append) # append all of the values in this file to one position in the outputs list
+except (SyntaxError, ImportError, AttributeError, KeyError, NameError,
+    IndexError, TypeError) as err:
+    print("ERROR in output_dictionary")
+    import traceback
+    traceback.print_exception(err, err, err.__traceback__)
 
 if not apps and not outputs:
     group[13].text = 'NO MACRO FILES FOUND'
     macropad.display.refresh()
     while True:
         pass
-# outputs 
+# outputs
 last_position = None
 last_encoder_switch = macropad.encoder_switch_debounced.pressed
 index_app = 0  # used to relate to one apps dictionary
-# apps[index_app].switch() # the OLED lights and label are assigned using switch 
-# we are outputting the pixels on the macropad screen using the apps list, where at each position an apps dictionary is stored
-# index_output=0
-# outputs[index_output].mapping()
-temporary = apps+outputs
-index_temporary = 0 
+apps[index_app].switch() 
 
+index_output=0
+outputs[index_output].mapping()
+
+#index_temporary = 0
 
 # MAIN LOOP ----------------------------
 # an if statement of the different macropad numbers on switch
 while True:
-    position = macropad.encoder 
-    if position != last_position:# the number on the macropad encoder divided by the number of macrofiles results is 0, so we are making a correspondence between the macropad.encoder and the position of a macrofile in the folder
-        index_temporary = position % (len(temporary))  # we are assigning the macropad encoder length to be the length of the apps function 
-        if temporary:  # if we have the apps elements in the the total list, we perform the switch operation
-            temporary[index_temporary].switch() # only switches the contents of the apps_list
-            temporary[index_temporary].mapping()     
-            last_position = position
-            
-# included to continually check the state of the switch
-    index_app=index_temporary
+    # assign the dicts from apps and outputs to the macropad encoder position
+    
+    position = macropad.encoder
+    if position != last_position: 
+        index_app = position % (len(apps))
+        if apps or outputs:
+            apps[index_app].switch()
+            outputs[index_output].mapping()
+        last_position=position
+           
     macropad.encoder_switch_debounced.update()
     encoder_switch = macropad.encoder_switch_debounced.pressed
     # macropad.encoder_switch_debounced.pressed is true when the switch is pressed
     if encoder_switch != last_encoder_switch:
         last_encoder_switch = encoder_switch 
-        if len(apps[index_app].macros) < 13: # there are less than 13 macrobuttons stored in each app dictionary, we continue
-            continue 
-        # dealing with errors
-        key_number = 12
-        pressed = encoder_switch # pressed is assigned to the event of the macropad encoder switch being pressed
-        event = macropad.keys.events.get() # look for the key pressed
-        # check if there is an event
-        # event is storing the key value
-        # macros refers to the folder?
-        if event.key_number >= len(apps[index_app].macros): # if you don't press a key or if your macro file (code) contains an extra key (out of bounds),we ignore it - sorting out possible errors
+        if len(apps[index_app].macros) < 13:
             continue
-        # dealing with errors
-        key_number = event.key_number  # we store which key is pressed on the macropad screen
+        key_number = 12
+        pressed = encoder_switch 
+        event = macropad.keys.events.get() 
+
+        if event.key_number >= len(apps[index_app].macros):
+            continue
+        key_number = event.key_number  
         pressed = event.pressed  
 
-   # we've stored which key is pressed, now we look for specific macros.....
-    # are avoided by 'continue' statements above which resume the loop.
-
-    #the encoder button being pressed is what the code is predicated on
+ 
     sequence = apps[index_app].macros[key_number][2]
     if pressed:
         if key_number < 12: # No pixel for encoder button
-            macropad.pixels[key_number] = 0xFFFFFF  # assigns a colour to each key on the macropad
-            macropad.pixels.show()      # displays the colour on the key
+            macropad.pixels[key_number] = 0xFFFFFF  
+            macropad.pixels.show()      
         for item in sequence:
             if isinstance(item, int): 
                 if item >= 0:  
@@ -296,13 +273,8 @@ while True:
                 elif 'tone' in item:
                     macropad.stop_tone()
         macropad.consumer_control.release()
-        if key_number < 12: # No pixel for encoder button
+        if key_number < 12:
             macropad.pixels[key_number] = apps[index_app].macros[key_number][0]
             macropad.pixels.show()
 
-    #output is stored in final file
-
-#come up with some seperate functionality
- #create a class to store the input of the keys-later
-#we want to store the content of the final_file into the list outputs anduse that to print it out onto the screen
-
+            # https://github.com/Sidpatchy/MacroControl/blob/main/code.py
