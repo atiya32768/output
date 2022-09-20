@@ -20,25 +20,36 @@ class App:
     
     def getname(self):
         return self.name
-    #list of commands
-    # a way to return the specific command pressed
-    #passing the output as info
-    # we are passing a list to the function
-    
-    
+
+    # this is in the app class
     def mapping(self):
-        #group[0].text="hello world"
-        for x in range(len(info)):
-            group[x].text=self.info[x]
+
+        output_group=displayio.Group()
+        for key_index in range(10):
+            x = key_index % 2
+            y = key_index // 2
+            output_group.append(label.Label(terminalio.FONT, text='', color=0xFFFFFF,
+                                    anchored_position=((macropad.display.width ) * x /2,
+                                                        macropad.display.height - (3-y)*12), 
+                                    anchor_point=(x/8, 1.0)))# label.Label is used to display something to the screen
+       # output_group.append(Rect(0, 0, macropad.display.width, 12, fill=0xFFFFFF)) # this is for the box at the top
+        output_group.append(label.Label(terminalio.FONT, text='', color=0x000000,
+                                anchored_position=(macropad.display.width//2, 2),
+                                anchor_point=(0.0, 0.0)))# this is for the label at the top
+        macropad.display.show(output_group)
+
+        for x in range(len(output)):
+            output_group[x].text=self.output[x]
+        
 
         macropad.display.refresh()
         macropad.pixels.show()
+
         
-    def set_info(self,info):
-        self.info=info
+    def set_output(self,output):
+        self.output=output
         self.mapping()
     
-
 
         #  for x in self.output_dictionary.keys():
         #     macropad.pixels[x]=self.output_dictionary_keys[x]
@@ -66,7 +77,7 @@ class App:
         macropad.keyboard.release_all()
         macropad.consumer_control.release()
         macropad.mouse.release_all()
-        macropad.stop_tone()
+        #macropad.stop_tone()
         macropad.pixels.show()
         macropad.display.refresh()
 
@@ -77,8 +88,11 @@ macropad = MacroPad()
 macropad.display.auto_refresh = False
 macropad.pixels.auto_write = False
 
-# Set up displayio group with all the labels
+
 group = displayio.Group()
+
+# we need to make this display just for the apps object
+# put this in a function and call it at a specific time/point
 for key_index in range(12):
     x = key_index % 3
     y = key_index // 3
@@ -91,12 +105,16 @@ group.append(Rect(0, 0, macropad.display.width, 12, fill=0xFFFFFF))
 group.append(label.Label(terminalio.FONT, text='', color=0x000000,
                          anchored_position=(macropad.display.width//2, -2),
                          anchor_point=(0.5, 0.0)))
-macropad.display.show(group)
+macropad.display.show(group) # this actually displays the commands &outputs to the screenC
+
+# otherwise we use a different display
+# without it nothing would show up
+
 
 
 # if we add this the pixels do not show
-
-# for key_index in range(1):
+# output_group=displayio.Group()
+# for key_index in range(12):
 #     x = key_index % 1
 #     y = key_index // 3
 #     output_group.append(label.Label(terminalio.FONT, text='', color=0xFFFFFF,
@@ -112,17 +130,17 @@ macropad.display.show(group)
 # #display the outputs on the left of the screen and the middle of the macroapd screen
 # input_group=displayio.Group()
 # for key_index in range(4):
-#     x = key_index % 2
-#     y = key_index // 3
-#     input_group.append(label.Label(terminalio.FONT, text='', color=0xFFFFFF,
-#                             anchored_position=((macropad.display.width - 5) * x / 5,
-#                                                 macropad.display.height - 1 - (3-y)*12 ),
-#                             anchor_point=(x/2, 1.0)))# label.Label is used to display something to the screen
-# input_group.append(Rect(0, 0, macropad.display.width, 8, fill=0xFFFFFF)) # this is for the box at the top
-# input_group.append(label.Label(terminalio.FONT, text='', color=0x000000,
-#                         anchored_position=(macropad.display.width//10, -2),
-#                         anchor_point=(0.5, 0.0))) # this is for the label at the top
-# macropad.display.show(input_group)
+# #     x = key_index % 2
+# #     y = key_index // 3
+# #     input_group.append(label.Label(terminalio.FONT, text='', color=0xFFFFFF,
+# #                             anchored_position=((macropad.display.width - 5) * x / 5,
+# #                                                 macropad.display.height - 1 - (3-y)*12 ),
+# #                             anchor_point=(x/2, 1.0)))# label.Label is used to display something to the screen
+# # input_group.append(Rect(0, 0, macropad.display.width, 8, fill=0xFFFFFF)) # this is for the box at the top
+# # input_group.append(label.Label(terminalio.FONT, text='', color=0x000000,
+# #                         anchored_position=(macropad.display.width//10, -2),
+# #                         anchor_point=(0.5, 0.0))) # this is for the label at the top
+# # macropad.display.show(input_group)
 
 
 
@@ -165,16 +183,64 @@ while True:
         
         apps[app_index].switch()
         last_position=position
-        #last_position=position
+        output_group=displayio.Group()
+        for key_index in range(10):
+            x = key_index % 2
+            y = key_index // 2
+            output_group.append(label.Label(terminalio.FONT, text='', color=0xFFFFFF,
+                                    anchored_position=((macropad.display.width ) * x /2,
+                                                        macropad.display.height - (3-y)*12), # we edit this part to move the output upwards
+                                    anchor_point=(x/8, 1.0)))# label.Label is used to display something to the screen
+        # output_group.append(Rect(0, 0, macropad.display.width, 12, fill=0xFFFFFF)) # this is for the box at the top
+        output_group.append(label.Label(terminalio.FONT, text='', color=0x000000,
+                            anchored_position=(macropad.display.width//2, 2),
+                            anchor_point=(0.0, 0.0)))# this is for the label at the top
+        macropad.display.show(output_group)
+       
     current_app=apps[app_index]
 
-
+    input=[]
+    # input list stores the commands
+    file_name=open("macros/input.txt", "r")
+    input_lines=file_name.readlines()
+    for input_line in range(len(input_lines)):
+        input.append(input_lines[input_line].strip('\n'))
+    
+    # info list stores the numbers
     info=[] # append an input with an output from the output list
     file=open("macros/output.txt", "r")
     lines=file.readlines()
     for line in range(len(lines)):
         info.append(lines[line].strip('\n'))
+
+    output=list()
+    for i in range(len(info)):
+        output.append(input[i])
+        output.append(info[i])
     
+
+    group = displayio.Group()
+
+
+    for key_index in range(12):
+        x = key_index % 3
+        y = key_index // 3
+        group.append(label.Label(terminalio.FONT, text='', color=0xFFFFFF,
+                                anchored_position=((macropad.display.width - 1) * x / 2,
+                                                    macropad.display.height - 1 -
+                                                    (3 - y) * 12),
+                                anchor_point=(x / 2, 1.0)))
+    group.append(Rect(0, 0, macropad.display.width, 12, fill=0xFFFFFF))
+    group.append(label.Label(terminalio.FONT, text='', color=0x000000,
+                            anchored_position=(macropad.display.width//2, -2),
+                            anchor_point=(0.5, 0.0)))
+    macropad.display.show(group)
+    # output=[] # append an input with an output from the output list
+    # file=open("macros/output.txt", "r")
+    # lines=file.readlines()
+    # for line in range(len(lines)):
+    #     info.append(lines[line].strip('\n'))
+
 
     # we have the specific command from the keyboard
 
@@ -216,21 +282,9 @@ while True:
         key_number = event.key_number
         pressed = event.pressed # we have pressed the key 
 
-
-    # we have that the key is pressed
-    # we need to edit this so that if the key is pressed, we do something
-    # arbitary length list 
     
-        # create some conditions to output the result
     sequence = apps[app_index].macros[key_number][2]
     if pressed:
-        # 'sequence' is an arbitrary-length list, each item is one of:
-        # Positive integer (e.g. Keycode.KEYPAD_MINUS): key pressed
-        # Negative integer: (absolute value) key released
-        # Float (e.g. 0.25): delay in seconds
-        # String (e.g. "Foo"): corresponding keys pressed & released
-        # List []: one or more Consumer Control codes (can also do float delay)
-        # Dict {}: mouse buttons/motion (might extend in future)
         if key_number < 12: # No pixel for encoder button
             macropad.pixels[key_number] = 0xFFFFFF
             macropad.pixels.show()
@@ -269,11 +323,6 @@ while True:
                 elif 'play' in item:
                     macropad.play_file(item['play'])
     else:
-        # Release any still-pressed keys, consumer codes, mouse buttons
-        # Keys and mouse buttons are individually released this way (rather
-        # than release_all()) because pad supports multi-key rollover, e.g.
-        # could have a meta key or right-mouse held down by one macro and
-        # press/release keys/buttons with others. Navigate popups, etc.
         for item in sequence:
             if isinstance(item, int):
                 if item >= 0:
@@ -282,26 +331,17 @@ while True:
                 if 'buttons' in item:
                     if item['buttons'] >= 0:
                         macropad.mouse.release(item['buttons'])
-                elif 'tone' in item:
-                    macropad.stop_tone()
+                # elif 'tone' in item:
+                #     macropad.stop_tone()
         macropad.consumer_control.release()
         if key_number < 12: # No pixel for encoder button
             macropad.pixels[key_number] = apps[app_index].macros[key_number][0]
             macropad.pixels.show()
     # once we have pressed action 
 
-  
-    # if encoder_switch:
-    current_app.set_info(info)
-    
 
 
-
-
-
-
-
-
+    current_app.set_output(output)
 
 
 
